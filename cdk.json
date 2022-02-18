@@ -1,5 +1,5 @@
 {
-  "app": "go mod download && go run coffeeshop-serverless.go",
+  "app": "go mod download && go run coffeeshop.go",
   "watch": {
     "include": [
       "**"

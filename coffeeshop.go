@@ -2,16 +2,17 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	gateway "github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
+	lambda "github.com/aws/aws-cdk-go/awscdklambdagoalpha/v2"
 	"github.com/aws/constructs-go/constructs/v10"
-	// "github.com/aws/jsii-runtime-go"
+	"github.com/aws/jsii-runtime-go"
 )
 
-type CoffeeshopServerlessStackProps struct {
+type CoffeeshopStackProps struct {
 	awscdk.StackProps
 }
 
-func NewCoffeeshopServerlessStack(scope constructs.Construct, id string, props *CoffeeshopServerlessStackProps) awscdk.Stack {
+func NewCoffeeshopStack(scope constructs.Construct, id string, props *CoffeeshopStackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
@@ -21,9 +22,25 @@ func NewCoffeeshopServerlessStack(scope constructs.Construct, id string, props *
 	// The code that defines your stack goes here
 
 	// example resource
-	// queue := awssqs.NewQueue(stack, jsii.String("CoffeeshopServerlessQueue"), &awssqs.QueueProps{
+	// queue := awssqs.NewQueue(stack, jsii.String("CoffeeshopQueue"), &awssqs.QueueProps{
 	// 	VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(300)),
 	// })
+
+	// The Go executables can be made smaller by stripping out the symbol table and debug
+	// information (-s) and omitting the DWARF symbol table (-w). This doesn’t make stack traces
+	// unreadable, so it’s quite appropriate for production use.
+	bundlingOptions := &lambda.BundlingOptions{
+		GoBuildFlags: &[]*string{jsii.String(`-ldflags "-s -w"`)},
+	}
+
+	orderLambda := lambda.NewGoFunction(stack, jsii.String("OrderHandler"), &lambda.GoFunctionProps{
+		Entry:    jsii.String("lambdas/order.go"),
+		Bundling: bundlingOptions,
+	})
+
+	gateway.NewLambdaRestApi(stack, jsii.String("CoffeeShopApi"), &gateway.LambdaRestApiProps{
+		Handler: orderLambda,
+	})
 
 	return stack
 }
@@ -31,7 +48,7 @@ func NewCoffeeshopServerlessStack(scope constructs.Construct, id string, props *
 func main() {
 	app := awscdk.NewApp(nil)
 
-	NewCoffeeshopServerlessStack(app, "CoffeeshopServerlessStack", &CoffeeshopServerlessStackProps{
+	NewCoffeeshopStack(app, "CoffeeshopStack", &CoffeeshopStackProps{
 		awscdk.StackProps{
 			Env: env(),
 		},

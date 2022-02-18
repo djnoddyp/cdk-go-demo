@@ -9,13 +9,13 @@ package main
 // )
 
 // example tests. To run these tests, uncomment this file along with the
-// example resource in coffeeshop-serverless_test.go
+// example resource in coffeeshop_test.go
 // func TestCoffeeshopServerlessStack(t *testing.T) {
 // 	// GIVEN
 // 	app := awscdk.NewApp(nil)
 
 // 	// WHEN
-// 	stack := NewCoffeeshopServerlessStack(app, "MyStack", nil)
+// 	stack := NewCoffeeshopStack(app, "MyStack", nil)
 
 // 	// THEN
 // 	template := assertions.Template_FromStack(stack)
